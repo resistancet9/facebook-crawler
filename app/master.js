@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import request from 'superagent';
 
-var pages = ["", ""];
+var pages = [""];
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { clicked: false, url: pages[1], time: "00:00" ,ttime: "00:00", date: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate()), tdate: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate())};
+    this.state = { clicked: false, url: pages[0], time: "00:00" ,ttime: "00:00", date: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate()), tdate: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate())};
 
     this.handleurl = this.handleurl.bind(this);
     this.handletime = this.handletime.bind(this);
