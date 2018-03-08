@@ -36,12 +36,12 @@ app.get(["/"], function response(req, res) {
   res.end();
 });
 
-app.get("/api/getpost/:pagename/:date/:tdate/:time/:ttime", (req, resEx)=>{
+app.get("/api/getpost/:pagename/:date/:tdate/:time/:ttime/:token", (req, resEx)=>{
   async.waterfall([(next)=>{
-    fetcher.index(req.params.pagename,req.params.date,req.params.tdate,req.params.time,req.params.ttime, next)
+    fetcher.index(req.params.pagename,req.params.date,req.params.tdate,req.params.time,req.params.ttime,req.params.token || "", next)
   }], (err, res)=>{
     if(err)
-      console.log(err.message);
+      resEx.json(err)
     if(res)
       resEx.json(res)
   });

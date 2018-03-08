@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import request from 'superagent';
 
-var pages = [""];
+var pages = ["meawwcom"];
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { clicked: false, url: pages[0], time: "00:00" ,ttime: "00:00", date: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate()), tdate: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate())};
+    var token = localStorage.getItem("i-token") || "nill";
+    this.state = { token: token, clicked: false, url: pages[0], time: "00:00" ,ttime: "00:00", date: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate()), tdate: (new Date().getFullYear()) + (((new Date().getMonth()) + 1) < 10 ? '-0' : '-') + ((new Date().getMonth()) + 1) + ((new Date().getDate()) < 10 ? '-0' : '-') + (new Date().getDate())};
 
     this.handleurl = this.handleurl.bind(this);
     this.handletime = this.handletime.bind(this);
@@ -38,11 +39,26 @@ class App extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    this.setState({clicked: true})
+    this.setState({clicked: true, token: localStorage.getItem("i-token")})
     request
-      .get('http://localhost:3000/api/getpost/' + this.state.url + "/" + this.state.date + "/" + this.state.tdate + "/" + this.state.time + "/" + this.state.ttime)
+      .get('http://localhost:3000/api/getpost/' + this.state.url + "/" + this.state.date + "/" + this.state.tdate + "/" + this.state.time + "/" + this.state.ttime + "/" + this.state.token)
       .then((res)=>{
-        this.setState({resp: res.body, clicked: false})
+          if(!res.body.code){
+            this.setState({resp: res.body, clicked: false})
+          } 
+          
+          if(res.body.code){ 
+            this.setState({clicked: false})
+            if(res.body.code === 190463){
+              var newToken = prompt(res.body.message + " Add new Token and try again: ")
+              localStorage.setItem('i-token', newToken);
+            } else if(res.body.code === 190){
+              var newToken = prompt(res.body.message + " Add new Token and try again: ")
+              localStorage.setItem('i-token', newToken);
+            } else {
+              alert(res.body.message)
+            }
+          }
       })
       .catch(e=>{
           console.log(e);
@@ -60,7 +76,6 @@ class App extends Component {
   }
 
   render() {
-      console.log(this.state)
     if(pages){
         var AllPages = pages.map((page,i)=>{
             return(

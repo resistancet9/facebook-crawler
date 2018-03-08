@@ -5,8 +5,9 @@ var moment = require('moment');
 var nextFunc = null;
 var time = null;
 var date = null;
+var accesstoken = null;
 var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-FB.setAccessToken("");
+
 array = [];
 
 function getter(data) {
@@ -43,10 +44,15 @@ function sorter() {
   nextFunc(null, sorted)
 }
 
-var index = function (pagename, date, tdate, time,ttime, nextFunction){
+var index = function (pagename, date, tdate, time, ttime, token, nextFunction){
 
-time = moment( time + ":00", ["Hms"]).format("hh:mm:ss A");
-ttime = moment( ttime + ":00", ["Hms"]).format("hh:mm:ss A");
+    if(token != ""){
+        accesstoken = token;
+        FB.setAccessToken(accesstoken);
+    }
+
+    time = moment( time + ":00", ["Hms"]).format("hh:mm:ss A");
+    ttime = moment( ttime + ":00", ["Hms"]).format("hh:mm:ss A");
 
     date = date.split('-');
     var timestamp = Date.parse(date[2] + ' ' + months[parseInt(date[1]) - 1] + ' ' + date[0] + ' ' + time + " GMT")
@@ -61,9 +67,18 @@ ttime = moment( ttime + ":00", ["Hms"]).format("hh:mm:ss A");
       '/v2.11/' + pagename + '/posts',
       'GET',
       { "fields": "id,created_time,permalink_url, link, type, sponsor_tags, reactions.summary(true).limit(0),shares,comments.summary(true).limit(0)", "limit": "100", "since": timestamp/1000, "until": ttimestamp/1000},
-      function (response, err) {
-          if (err){ console.log(err.message) }
-          if(response){
+      function (response) {
+          if(response.error){
+              if(response.error.code === 190 && response.error.error_subcode === 463){
+                nextFunction({message: "Token expired", code: 190463})
+              } else if(response.error.code === 190){
+                nextFunction({message: "Invalid token", code: 190})
+              } else {
+                nextFunction(response.error)
+              }
+          }
+
+          if(!response.error){
             getter(response.data)
             if(response.paging){
                 var next = response.paging.next;
@@ -73,8 +88,6 @@ ttime = moment( ttime + ":00", ["Hms"]).format("hh:mm:ss A");
                 else
                     sorter();
             }
-          } else {
-              nextFunction(err)
           }
       }
     );
